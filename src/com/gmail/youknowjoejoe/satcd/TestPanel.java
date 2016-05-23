@@ -18,6 +18,15 @@ public class TestPanel extends JPanel implements Runnable, KeyListener{
 	private Polygon p1;
 	private Polygon p2;
 	private boolean upDown=false,rightDown=false,leftDown=false,downDown=false;
+	private Matrix33 identity = Matrix33.getIdentity();
+	private Matrix33 rightVel = new Matrix33(0.0001f,0,true);
+	private Matrix33 leftVel = new Matrix33(-0.0001f,0,true);
+	private Matrix33 upVel = new Matrix33(0,-0.0001f,true);
+	private Matrix33 downVel = new Matrix33(0,0.0001f,true);
+	private double dt;
+	private double oldTime;
+	private double currentTime;
+	private double FPS;
 	
 	public TestPanel(int width, int height){
 		this.width = width;
@@ -50,25 +59,32 @@ public class TestPanel extends JPanel implements Runnable, KeyListener{
 	@Override
 	public void run() {
 		
+		oldTime = System.nanoTime()/1000000000;
+		currentTime = oldTime;
+		dt = 0;
 		while(running){
+			currentTime = System.nanoTime()/1000000000;
+			dt = currentTime-oldTime;
+			oldTime = currentTime;
+			FPS = 1/dt;
 			logic();
 			repaint();
 		}
 	}
 	
 	public void logic(){
-		Matrix33 movement = Matrix33.getIdentity();
+		Matrix33 movement = identity;
 		if(upDown){
-			movement = (new Matrix33(0,-0.0001f,true)).times(movement);
+			movement = upVel.times(movement);
 		}
 		if(rightDown){
-			movement = (new Matrix33(0.0001f,0,true)).times(movement);
+			movement = rightVel.times(movement);
 		}
 		if(leftDown){
-			movement = (new Matrix33(-0.0001f,0,true)).times(movement);
+			movement = leftVel.times(movement);
 		}
 		if(downDown){
-			movement = (new Matrix33(0,0.0001f,true)).times(movement);
+			movement = downVel.times(movement);
 		}
 		p1.transform(movement);
 		CollisionInfo ci = new CollisionInfo(p1,p2);
@@ -85,6 +101,9 @@ public class TestPanel extends JPanel implements Runnable, KeyListener{
 		
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, width, height);
+		
+		g2d.setColor(Color.black);
+		g2d.drawString(""+FPS, 10, 10);
 		
 		p1.draw(g2d);
 		p2.draw(g2d);

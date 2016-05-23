@@ -56,14 +56,13 @@ public class CollisionInfo {
 		Vector2f[] p2Verts = p2.getTransformedVertices();
 		
 		generateAndTestPolygonsAxis(p1Verts,p2Verts);
-		generateAndTestPolygonsAxis(p2Verts,p1Verts);
+		if(colliding){
+			generateAndTestPolygonsAxis(p2Verts,p1Verts);
+		}
 	}
 	
 	public void generateAndTestPolygonsAxis(Vector2f[] p1Verts, Vector2f[] p2Verts){
 		for(int i = 0; i < p1Verts.length; i++){
-			if(!colliding){
-				break;
-			}
 			Vector2f cn = p1Verts[(i+1)%p1Verts.length].minus(p1Verts[i]).perpendicular().normalized();
 			
 			Vector2f minMaxP1;
